@@ -1,52 +1,56 @@
-# TUUZA Client-Side Quotation OCR
+# TUUZA Pharmacy PWA
 
-A Next.js PWA starter for extracting medicine names from dense supplier quotation images. Image preprocessing is performed in a dedicated Web Worker using OffscreenCanvas. OCR is performed by Tesseract.js, which manages its own Web Worker. There is no OCR server/API call.
-
-## Why this path
-- No per-page OCR API bill.
-- No Vercel serverless OCR function or server-side ML dependencies.
-- Human-adjustable NAME-column crop.
-- Local grayscale + adaptive threshold preprocessing.
-- Local Tesseract OCR, deduplicated JSON output.
-- Service worker caches the app shell and local OCR assets after first successful online load.
+Responsive Vite + React + TypeScript Progressive Web App, styled after the supplied Pharmly-inspired design. Includes the supplied Rwanda FDA October 2026 working-reference workbook as a bundled searchable medicine library. **This version intentionally has no Supabase or backend integration.**
 
 ## Run locally
-Requires a supported Node.js LTS.
+
 ```bash
 npm install
 npm run dev
 ```
-Open http://localhost:3000/quotation-ocr.
 
-`postinstall` attempts to copy Tesseract worker/core runtime assets into `public/tesseract`. Inspect `public/tesseract` after install. Tesseract language data is often distributed separately from the package bundle: ensure `eng.traineddata.gz` is at `public/tesseract/lang-data/eng.traineddata.gz`. If your installed Tesseract.js version uses a different core filename, update `corePath` in `src/components/QuotationOcr.tsx` to the exact file copied into `public/tesseract`.
+Build and preview:
 
-## Vercel
-1. Push to GitHub.
-2. Import the repository in Vercel as a Next.js project.
-3. Deploy with default build settings.
-4. Test the deployed app over HTTPS and use DevTools > Application > Service Workers / Cache Storage to verify offline assets.
-5. Visit the OCR page online once and run OCR successfully; the worker, WASM runtime, language data and app shell are then cached as requests succeed.
-6. After a hard reload, switch to offline mode and test again. Browser storage may be evicted; offline use is best-effort, not a guaranteed archival mechanism.
+```bash
+npm run build
+npm run preview
+```
 
-## OCR limitations
-- This initial version accepts PNG, JPG and WEBP. PDF support requires PDF.js to render each selected page into an image before cropping.
-- User manually sets crop percentages; it avoids fragile automatic table detection and works across varying supplier templates.
-- It uses local adaptive mean thresholding. This is not a full Sauvola implementation and may need tuning for colored/low-contrast scans.
-- Tesseract may merge or split rows. Names are editable and should be reviewed before they enter a procurement catalogue.
-- OCR output is not a verified product identity. Match strength, dosage form, pack size, and catalogue records separately.
-- Offline caching can require significant storage (English traineddata + WASM). Do not pre-cache large assets in the install event; this starter caches them after first successful request.
+## Deploy to Vercel
 
-## Main files
-- `src/components/QuotationOcr.tsx`: upload, crop controls, OCR, review and JSON export.
-- `src/workers/preprocess.worker.ts`: OffscreenCanvas crop, grayscale and adaptive thresholding.
-- `public/sw.js`: cache-first offline behavior for the app shell and local OCR runtime.
-- `scripts/copy-tesseract-assets.mjs`: copies available Tesseract runtime files into `public/tesseract`.
+1. Push this project folder to a Git repository.
+2. Import the repository in Vercel.
+3. Select the **Vite** framework preset. Build command: `npm run build`; output directory: `dist`.
+4. Deploy. `vercel.json` includes SPA fallback rewrites.
 
-## Production integration
-Before saving extracted names into TUUZA Procurement Desk:
-1. Keep the original quotation image.
-2. Store raw OCR text and corrected names separately.
-3. Match candidates against medicine name + strength + form + pack size.
-4. Ask the user to confirm ambiguous matches.
-5. Add audit metadata (user, timestamp, source quotation).
-6. Do not auto-accept a supplier offer based only on OCR output.
+## What's implemented
+
+- Responsive desktop/mobile navigation and dashboard.
+- Bundled medicine library from the workbook's `Products` sheet (2,612 source rows, 14 source fields preserved, plus provenance and verification flag).
+- Search across brand, generic, strength, dosage form, registration number, manufacturer and agent.
+- Product add/edit/deactivate, stock/reorder threshold fields and verification status.
+- XLSX/CSV import, duplicate-aware append, CSV exports and basic operational reports.
+- Supplier directory (basic add/remove).
+- Draft requisitions from selected products, editable status and CSV export.
+- Installable PWA manifest and versioned static asset caching.
+- Local persistence using browser `localStorage`.
+
+## Storage limitation
+
+All changes are stored in the current browser on the current device. They are not shared between users or devices, and clearing browser data can remove locally stored changes. Export regular backups. No account authentication, remote database, or server synchronization is included in this version.
+
+Quotation OCR, editable quotation line persistence, alias approval, price comparison, supplier allocation, PDF purchasing documents, stock movement audit workflow and automated backups are not yet implemented. The Quotations screen identifies this limitation rather than implying those features work.
+
+The supplied spreadsheet is treated as a **working reference register**, not independently verified regulatory truth. All imported records start with `source-imported-unverified`. Do not infer that missing information means a product is unregistered. Verify registration status with the current official source before making regulatory or purchasing decisions.
+
+The initial data set is bundled into `src-data.json` (about 1.5 MB) and is loaded into the browser on first run. Product and operational edits are persisted in `localStorage` on that browser/device. Export regular backups.
+
+## Data import
+
+- The bundled catalogue is loaded from the workbook's `Products` sheet.
+- The import dialog accepts XLSX, XLS and CSV. Column headers such as `Generic Name`, `Brand Name`, `Registration No.`, `Strength`, `Dosage Form`, `Pack Size`, `Manufacturer`, `Country`, `MAH / Local Agent`, `Reg. Date`, and `Expiry Date` are recognized.
+- Existing matching registration/name/strength combinations are skipped when importing. Review the result after import.
+
+## Security and clinical-data boundaries
+
+No patient data is required. Product matching and registration verification are not automated claims. This release does not make therapeutic substitution recommendations or send purchase orders to suppliers.
