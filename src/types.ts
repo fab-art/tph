@@ -1,0 +1,3 @@
+export type Medicine={id:string;registrationNo:string;brandName:string;genericName:string;strength:string;dosageForm:string;packSize:string;shelfLife:string;manufacturer:string;country:string;mahLocalAgent:string;registrationDate:string;expiryDate:string;source:string;verificationStatus:string;stock:number;reorderLevel:number;unitCost:number;category:string;active:boolean;updatedAt:string}
+export type Supplier={id:string;name:string;contact:string;phone:string;email:string;location:string;notes:string}
+export type Requisition={id:string;date:string;status:string;notes:string;lines:{productId:string;name:string;qty:number;unit:string}[]}
