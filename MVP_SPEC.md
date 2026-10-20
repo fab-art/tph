@@ -1,30 +1,23 @@
-# MVP product specification
+# TUUZA Procurement Desk v2 specification
 
-## Primary user
-TUUZA Pharmacy staff.
+## User workflow
+1. Select a normalized medicine using searchable type-ahead product dropdown.
+2. Add quantity, unit, batch and expiry details to requisition.
+3. Compare known supplier prices from the supplied requisition comparison workbook and Ubumwe catalogue.
+4. Import additional supplier Excel/CSV lists and include them as comparison offers.
+5. Select the preferred supplier price per line.
+6. Export the purchase requisition as PDF or PNG for review/submission; CSV/Excel available for data transfer.
 
-## Core workflow A: Create requisition
-1. Enter pharmacy, date and reference.
-2. Add product code/name, strength/form, pack size, quantity and optional known price.
-3. Review estimated totals.
-4. Export CSV or Excel for sending to suppliers.
+## Product normalization
+- Normalize case, punctuation, spaces and common abbreviations.
+- Generate fuzzy candidate suggestions.
+- Preserve the source product description.
+- Require human confirmation of strength, dosage form and pack size.
+- Add user-maintained alias mappings (currently session-only).
 
-## Core workflow B: Read supplier quotation
-1. Upload a screenshot/photo or PDF quotation.
-2. Enter supplier name.
-3. Run OCR and table-row detection.
-4. Review and correct extracted product rows.
-5. Export the reviewed quotation to Excel or add it to current working data.
+## Seed files
+- `data/ubumwe_catalogue.csv`: derived from the provided Ubumwe Depot August 2026 price list.
+- `data/supplier_comparison_reference.csv`: derived from the supplied requisition comparison workbook, including Ubumwe, FEDILIS and Sun Ltd price columns.
 
-## Fields to extract
-Supplier, product code, product name, strength/form, pack size, quantity, unit, unit price, line total, batch, expiry and source file.
-
-## Guardrails
-- OCR output is never treated as verified without user review.
-- Never infer live stock from a historical price list.
-- Keep quoted prices distinct from actual purchase prices.
-- Keep supplier/source and import date with each record.
-- Product equivalence must account for ingredient, strength, dosage form and pack size.
-
-## Next release
-Persistent storage, product catalogue, supplier-specific price history, requisition-to-quotation matching, price-change alerts and PDF requisition export.
+## Not yet production-ready
+No persistent database/authentication, no live stock availability, no durable alias store, no cross-tenant security, and OCR import is not integrated into this version. Price observations should retain source and date in a production system.

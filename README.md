@@ -1,36 +1,22 @@
-# TUUZA Procurement Desk — MVP
+# TUUZA Procurement Desk v2
 
-A Streamlit prototype for:
-- Building a pharmacy purchase requisition
-- Uploading quotation screenshots/photos/PDFs
-- OCR extraction of table rows into editable product/price fields
-- Exporting requisitions and extracted quotations to Excel/CSV
+## What's new
+- Searchable product dropdown: type to filter; use Up/Down and Enter to select.
+- Seed medicine catalogue extracted from the supplied Ubumwe Depot price list.
+- Normalization and fuzzy product-name suggestions.
+- Supplier comparison seeded from `req 14-10-2026.xlsx` and the Ubumwe price list.
+- Select a supplier price per requisition line and use it in the final requisition.
+- Export final requisition as PDF and PNG image, plus CSV/Excel data.
+- Import additional supplier Excel/CSV price lists into the session for comparison.
 
 ## Run locally
+1. Python 3.10+.
+2. `python -m venv .venv`
+3. Activate the environment.
+4. `pip install -r requirements.txt`
+5. `streamlit run app.py`
 
-1. Install Python 3.10+.
-2. Install Tesseract OCR:
-   - Ubuntu/Zorin: `sudo apt update && sudo apt install tesseract-ocr tesseract-ocr-eng`
-   - Windows: install Tesseract OCR and add its installation folder to PATH.
-3. In this folder, run:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Windows: .venv\Scripts\activate
-   pip install -r requirements.txt
-   streamlit run app.py
-   ```
+## Important
+This is an MVP prototype. The provided comparison workbook and catalogue are seeded reference data, not live inventory. Product matching uses normalization plus fuzzy similarity and needs human confirmation. Supplier offers imported through the UI and aliases currently persist only for the current session. A production release should add Supabase/PostgreSQL, authentication, role-based permissions, durable alias management, price history, secure uploads and audit logs.
 
-## Deploy on Streamlit Community Cloud
-
-1. Push `app.py`, `requirements.txt`, and `packages.txt` to a GitHub repository.
-2. Create a Streamlit Community Cloud app pointing to `app.py`.
-3. The `packages.txt` file requests the system Tesseract packages.
-
-## Important prototype limitations
-
-- OCR is best-effort. Small, low-resolution, rotated, or heavily compressed tables may need manual correction.
-- Product/column matching is heuristic and should not be used without review.
-- Data is held in Streamlit session state and is not permanent. Do not use this prototype as a production record system.
-- No user authentication, supplier permissions, database, price-history service, or direct ordering is implemented yet.
-- Before production, add Supabase/Postgres persistence, authentication, tenant-level access controls, audit logs, secure file storage, backup and validation.
-- Do not expose supplier quotations to other organizations without authorization.
+OCR upload is integrated for images and PDFs using Tesseract. OCR results are presented in an editable review table before being added to supplier offers. Extraction is heuristic and needs user verification.
